@@ -1,0 +1,27 @@
+{
+  "name": "smart-home-control",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack serve --disable-host-check --config webpack.config.development.js",
+    "build": "webpack --config webpack.config.production.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@jhb/smart-home-shared": "file:../smart-home-shared/",
+    "check-types-2": "11.4.0",
+    "classnames": "2.3.1",
+    "delay": "^5.0.0",
+    "fs-extra": "^8.1.0",
+    "lodash": "^4.17.21",
+    "log4js": "6.3.0",
+    "rpio": "^2.4.2"
+  },
+  "devDependencies": {
+    "eslint": "^7.24.0",
+    "eslint-config-es": "^3.28.27",
+    "eslint-plugin-json": "^2.1.2"
+  }
+}
