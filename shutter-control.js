@@ -10,7 +10,7 @@ const ShutterControl = require('./lib/ShutterControl');
 const {
   MqttClient,
   topics,
-} = require('@jhb/smart-home-shared');
+} = require('@joachimhb/smart-home-shared');
 
 const {
   shutterMovement,
@@ -43,7 +43,7 @@ try {
   }
 }
 
-const dockerConfigPath = '../config//shutter-control/config';
+const dockerConfigPath = '../config/shutter-control/config';
 const localConfigPath = '../smart-home-setup/arbeitszimmer/config/shutter-control/config';
 
 let config = null;
