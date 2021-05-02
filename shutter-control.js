@@ -52,14 +52,14 @@ try {
   config = require(dockerConfigPath);
   logger.info(`Using config [${dockerConfigPath}]`);
 } catch(err) {
-  logger.debug('Config fallback', err);
+  logger.trace('Config fallback', err);
   config = require(localConfigPath);
   logger.info(`Using config [${localConfigPath}]`);
 }
 
 (async function() {
   const mqttClient = new MqttClient({
-    url: 'tcp://raspi-arbeitszimmer:1883',
+    url: config.globals.mqttBroker,
     logger,
   });
 
