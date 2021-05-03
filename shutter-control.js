@@ -1,11 +1,11 @@
 'use strict';
 
+const check      = require('check-types-2');
 const fs         = require('fs-extra');
-// const _          = require('lodash');
 const log4js     = require('log4js');
 const rpio       = require('rpio');
 
-const ShutterControl = require('./lib/ShutterControl');
+const RoomControl = require('./lib/RoomControl');
 
 const {
   MqttClient,
@@ -58,16 +58,25 @@ try {
 }
 
 (async function() {
+  check.assert.object(config, 'config is not an object');
+  check.assert.array(config.controlledRoomIds, 'config.controlledRoomIds is not an array');
+
   const mqttClient = new MqttClient({
-    url: config.globals.mqttBroker,
+    url: config.mqttBroker,
     logger,
   });
 
-  const shutterControl = new ShutterControl({
-    config,
-    logger,
-    mqttClient,
-  });
+  const thisRooms = config.rooms.filter(room => config.controlledRoomIds.includes(room.id));
+
+  const roomMap = {};
+
+  for(const room of thisRooms) {
+    roomMap[room.id] = new RoomControl({
+      logger,
+      room,
+      mqttClient,
+    });
+  }
 
   const handleMqttMessage = async(topic, data) => {
     logger.debug('handleMqttMessage', topic, data);
@@ -81,20 +90,16 @@ try {
     ] = topic.split('/');
 
     if(area === 'room' && element === 'shutters' && subArea === 'movement') {
-      shutterControl[data.value](areaId, elementId);
+      roomMap[areaId][data.value](elementId);
     }
   };
 
   await mqttClient.init(handleMqttMessage);
 
-  for(const shutter of config.shutters) {
-    await mqttClient.subscribe(shutterMovement(shutter.room.id, shutter.id));
-    await mqttClient.subscribe(shutterStatus(shutter.room.id, shutter.id));
+  for(const room of thisRooms) {
+    for(const shutter of room.shutters || []) {
+      await mqttClient.subscribe(shutterMovement(room.id, shutter.id));
+      await mqttClient.subscribe(shutterStatus(room.id, shutter.id));
+    }
   }
-  //   if(room.windows) {
-  //     for(const shutter of room.windows) {
-  //       await mqttClient.subscribe(windowOpenStatus(room.id, shutter.id));
-  //     }
-  //   }
-  // }
 })();
