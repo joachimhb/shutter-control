@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@joachimhb/smart-home-shared": "git+https://github.com/joachimhb/smart-home-shared.git#0.0.1",
+    "@joachimhb/smart-home-shared": "git+https://github.com/joachimhb/smart-home-shared.git#0.0.2",
     "check-types-2": "11.4.0",
     "classnames": "2.3.1",
     "delay": "^5.0.0",
