@@ -7,10 +7,10 @@
     "dev": "webpack serve --disable-host-check --config webpack.config.development.js",
     "build": "webpack --config webpack.config.production.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "joachim.haecker-becker@arcor.de",
+  "license": "MIT",
   "dependencies": {
-    "@joachimhb/smart-home-shared": "git+https://github.com/joachimhb/smart-home-shared.git#0.0.2",
+    "@joachimhb/smart-home-shared": "git+https://github.com/joachimhb/smart-home-shared.git#0.0.3",
     "check-types-2": "11.4.0",
     "classnames": "2.3.1",
     "delay": "^5.0.0",
@@ -20,9 +20,13 @@
     "rpio": "^2.4.2"
   },
   "devDependencies": {
-    "@joachimhb/bot": "git+https://github.com/joachimhb/bot.git#0.0.7",
+    "@joachimhb/bot": "git+https://github.com/joachimhb/bot.git#0.1.0",
     "eslint": "^7.24.0",
     "eslint-config-es": "^3.28.27",
     "eslint-plugin-json": "^2.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joachimhb/shutter-control.git"
   }
 }
