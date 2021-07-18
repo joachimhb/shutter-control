@@ -15,6 +15,7 @@ const {
 const {
   shutterMovement,
   shutterStatus,
+  shutterInit,
   // windowOpenStatus,
 } = topics;
 
@@ -69,14 +70,7 @@ try {
   const thisRooms = config.rooms.filter(room => config.controlledRoomIds.includes(room.id));
 
   const roomMap = {};
-
-  for(const room of thisRooms) {
-    roomMap[room.id] = new RoomControl({
-      logger,
-      room,
-      mqttClient,
-    });
-  }
+  const initialRoomStatus = {};
 
   const handleMqttMessage = async(topic, data) => {
     logger.debug('handleMqttMessage', topic, data);
@@ -90,7 +84,12 @@ try {
     ] = topic.split('/');
 
     if(area === 'room' && element === 'shutters' && subArea === 'movement') {
-      roomMap[areaId][data.value](elementId);
+      if(roomMap[areaId]) {
+        roomMap[areaId][data.value](elementId);
+      }
+    } else if(area === 'room' && element === 'shutters' && subArea === 'status') {
+      initialRoomStatus[areaId] = initialRoomStatus[areaId] || {};
+      initialRoomStatus[areaId][elementId] = data.value;
     }
   };
 
@@ -102,4 +101,12 @@ try {
       await mqttClient.subscribe(shutterStatus(room.id, shutter.id));
     }
   }
-})();
+  for(const room of thisRooms) {
+    roomMap[room.id] = new RoomControl({
+      logger,
+      room,
+      mqttClient,
+      status: initialRoomStatus[room.id],
+    });
+  }
+ })();
