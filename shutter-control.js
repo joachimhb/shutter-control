@@ -15,8 +15,8 @@ const {
 const {
   shutterMovement,
   shutterStatus,
-  shutterInit,
-  // windowOpenStatus,
+  shutterToggle,
+  windowStatus,
 } = topics;
 
 rpio.init({mapping: 'gpio'});
@@ -25,6 +25,7 @@ const logger = log4js.getLogger();
 
 logger.level = 'info';
 logger.level = 'debug';
+// logger.level = 'trace';
 
 const lockFilePath = '/var/run/pigpio.pid';
 
@@ -87,11 +88,23 @@ try {
       if(roomMap[areaId]) {
         roomMap[areaId][data.value](elementId);
       }
+    } else if(area === 'room' && element === 'shutters' && subArea === 'toggle') {
+      if(roomMap[areaId]) {
+        roomMap[areaId].toggle(elementId);
+      }
+    } else if(area === 'room' && element === 'windows' && subArea === 'status') {
+      if(roomMap[areaId]) {
+        if(data.value === 'open') {
+          roomMap[areaId].windowOpen(elementId);
+        } else {
+          roomMap[areaId].windowClosed(elementId);
+        }
+      }
     } else if(area === 'room' && element === 'shutters' && subArea === 'status') {
       initialRoomStatus[areaId] = initialRoomStatus[areaId] || {};
       initialRoomStatus[areaId][elementId] = data.value;
     }
-  };
+  }
 
   await mqttClient.init(handleMqttMessage);
 
@@ -99,6 +112,11 @@ try {
     for(const shutter of room.shutters || []) {
       await mqttClient.subscribe(shutterMovement(room.id, shutter.id));
       await mqttClient.subscribe(shutterStatus(room.id, shutter.id));
+      await mqttClient.subscribe(shutterToggle(room.id, shutter.id));
+    }
+
+    for(const window of room.windows || []) {
+      await mqttClient.subscribe(windowStatus(room.id, window.id));
     }
   }
   for(const room of thisRooms) {
