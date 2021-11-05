@@ -16,6 +16,7 @@ const {
   shutterMovement,
   shutterStatus,
   shutterToggle,
+  buttonActive,
   windowStatus,
 } = topics;
 
@@ -88,17 +89,9 @@ try {
       if(roomMap[areaId]) {
         roomMap[areaId][data.value](elementId);
       }
-    } else if(area === 'room' && element === 'shutters' && subArea === 'toggle') {
+    } else if(area === 'room' && element === 'buttons' && subArea === 'active') {
       if(roomMap[areaId]) {
-        roomMap[areaId].toggle(elementId);
-      }
-    } else if(area === 'room' && element === 'windows' && subArea === 'status') {
-      if(roomMap[areaId]) {
-        if(data.value === 'open') {
-          roomMap[areaId].windowOpen(elementId);
-        } else {
-          roomMap[areaId].windowClosed(elementId);
-        }
+        roomMap[areaId].buttonActive(elementId, data.value);
       }
     } else if(area === 'room' && element === 'shutters' && subArea === 'status') {
       initialRoomStatus[areaId] = initialRoomStatus[areaId] || {};
@@ -113,6 +106,7 @@ try {
       await mqttClient.subscribe(shutterMovement(room.id, shutter.id));
       await mqttClient.subscribe(shutterStatus(room.id, shutter.id));
       await mqttClient.subscribe(shutterToggle(room.id, shutter.id));
+      await mqttClient.subscribe(buttonActive(room.id, shutter.id));
     }
 
     for(const window of room.windows || []) {

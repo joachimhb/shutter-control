@@ -3,14 +3,11 @@
   "version": "0.1.5",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "dev": "webpack serve --disable-host-check --config webpack.config.development.js",
-    "build": "webpack --config webpack.config.production.js"
-  },
+  "scripts": {},
   "author": "joachim.haecker-becker@arcor.de",
   "license": "MIT",
   "dependencies": {
-    "@joachimhb/smart-home-shared": "github:joachimhb/smart-home-shared#0.1.2",
+    "@joachimhb/smart-home-shared": "github:joachimhb/smart-home-shared#1.0.6",
     "check-types-2": "11.4.0",
     "classnames": "2.3.1",
     "delay": "^5.0.0",
