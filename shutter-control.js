@@ -16,6 +16,8 @@ const {
   shutterMovement,
   shutterStatus,
   shutterToggle,
+  shutterInit,
+  shutterMoveTo,
   buttonActive,
   windowStatus,
 } = topics;
@@ -89,6 +91,10 @@ try {
       if(roomMap[areaId]) {
         roomMap[areaId][data.value](elementId);
       }
+    } else if(area === 'room' && element === 'shutters' && subArea === 'moveTo') {
+      if(roomMap[areaId]) {
+        roomMap[areaId].moveTo(elementId, data.value);
+      }
     } else if(area === 'room' && element === 'buttons' && subArea === 'active') {
       if(roomMap[areaId]) {
         roomMap[areaId].buttonActive(elementId, data.value);
@@ -107,6 +113,8 @@ try {
       await mqttClient.subscribe(shutterStatus(room.id, shutter.id));
       await mqttClient.subscribe(shutterToggle(room.id, shutter.id));
       await mqttClient.subscribe(buttonActive(room.id, shutter.id));
+      await mqttClient.subscribe(shutterInit(room.id, shutter.id));
+      await mqttClient.subscribe(shutterMoveTo(room.id, shutter.id));
     }
 
     for(const window of room.windows || []) {
