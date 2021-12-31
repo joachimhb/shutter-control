@@ -4,6 +4,7 @@ const check      = require('check-types-2');
 const fs         = require('fs-extra');
 const log4js     = require('log4js');
 const rpio       = require('rpio');
+const pigpio     = require('pigpio');
 
 const RoomControl = require('./lib/RoomControl');
 
@@ -13,7 +14,9 @@ const {
 } = require('@joachimhb/smart-home-shared');
 
 const {
-  shutterMovement,
+  shutterUp,
+  shutterDown,
+  shutterStop,
   shutterStatus,
   shutterToggle,
   shutterInit,
@@ -21,6 +24,18 @@ const {
   buttonActive,
   windowStatus,
 } = topics;
+
+const shutdown = function() {
+  pigpio.terminate();
+  clearInterval(timerVar);
+  console.log('raspi2-brownout-watcher must exit, performed cleanup.');
+  process.exit(0);
+}
+
+process.on('SIGHUP', shutdown);
+process.on('SIGINT', shutdown);
+process.on('SIGCONT', shutdown);
+process.on('SIGTERM', shutdown);
 
 rpio.init({mapping: 'gpio'});
 
@@ -87,9 +102,12 @@ try {
       subArea,
     ] = topic.split('/');
 
-    if(area === 'room' && element === 'shutters' && subArea === 'movement') {
+    if(area === 'room' && element === 'shutters' && subArea === 'status') {
+      initialRoomStatus[areaId] = initialRoomStatus[areaId] || {};
+      initialRoomStatus[areaId][elementId] = data.value;
+    } else if(area === 'room' && element === 'shutters' && ['up', 'down', 'stop'].includes(subArea)) {
       if(roomMap[areaId]) {
-        roomMap[areaId][data.value](elementId);
+        roomMap[areaId][subArea](elementId);
       }
     } else if(area === 'room' && element === 'shutters' && subArea === 'moveTo') {
       if(roomMap[areaId]) {
@@ -99,9 +117,6 @@ try {
       if(roomMap[areaId]) {
         roomMap[areaId].buttonActive(elementId, data.value);
       }
-    } else if(area === 'room' && element === 'shutters' && subArea === 'status') {
-      initialRoomStatus[areaId] = initialRoomStatus[areaId] || {};
-      initialRoomStatus[areaId][elementId] = data.value;
     }
   }
 
@@ -109,7 +124,9 @@ try {
 
   for(const room of thisRooms) {
     for(const shutter of room.shutters || []) {
-      await mqttClient.subscribe(shutterMovement(room.id, shutter.id));
+      await mqttClient.subscribe(shutterUp(room.id, shutter.id));
+      await mqttClient.subscribe(shutterDown(room.id, shutter.id));
+      await mqttClient.subscribe(shutterStop(room.id, shutter.id));
       await mqttClient.subscribe(shutterStatus(room.id, shutter.id));
       await mqttClient.subscribe(shutterToggle(room.id, shutter.id));
       await mqttClient.subscribe(buttonActive(room.id, shutter.id));
@@ -121,6 +138,7 @@ try {
       await mqttClient.subscribe(windowStatus(room.id, window.id));
     }
   }
+
   for(const room of thisRooms) {
     roomMap[room.id] = new RoomControl({
       logger,
