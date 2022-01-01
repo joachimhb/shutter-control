@@ -27,8 +27,7 @@ const {
 
 const shutdown = function() {
   pigpio.terminate();
-  clearInterval(timerVar);
-  console.log('raspi2-brownout-watcher must exit, performed cleanup.');
+  console.log('Terminating...');
   process.exit(0);
 }
 
