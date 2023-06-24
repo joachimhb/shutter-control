@@ -91,7 +91,7 @@ try {
   const initialRoomStatus = {};
 
   const handleMqttMessage = async(topic, data) => {
-    logger.debug('handleMqttMessage', topic, data);
+    // logger.debug('handleMqttMessage', topic, data);
 
     const [
       area,
